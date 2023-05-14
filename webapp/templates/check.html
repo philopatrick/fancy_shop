@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card mt-5">
+  <div class="card-body">
+    <h1 class="card-title">Checkout</h1>
+    <hr>
+
+    {% if product %}
+    <h2>{{ product.name }}</h2>
+    <p class="card-text">{{ product.description }}</p>
+    <p class="card-text">Price: {{ product.price }} USD</p>
+    <hr>
+
+    <form method="post" action="{{url_for('purchase_product',product_id=product.id)}}">
+      <input type="hidden" name="quantity" value="{{ 1 }}">
+
+      <div class="form-group">
+        <label for="payment_method">Payment Method:</label>
+        <select name="payment_method" id="payment_method" class="form-control">
+          <option value="">-- Select Payment Method --</option>
+          <option value="wechat_pay">WeChat Pay</option>
+          <option value="alipay">AliPay</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Pay Now</button>
+    </form>
+
+    {% else %}
+    {% if cart.items %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Product Name</th>
+          <th scope="col">Price</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart.items %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>{{ item.product.price }} USD</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.total_price }} USD</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <hr>
+
+    <p class="card-text">Total Price: {{ cart.get_total_price()}} USD</p>
+
+    <form method="post" action="{{ url_for('buy_cart',user_id=user.id) }}">
+      <input type="hidden" name="cart_id" value="{{ cart.id }}">
+
+      <div class="form-group">
+        <label for="payment_method">Payment Method:</label>
+        <select name="payment_method" id="payment_method" class="form-control">
+          <option value="">-- Select Payment Method --</option>
+          <option value="wechat_pay">WeChat Pay</option>
+          <option value="alipay">AliPay</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Pay Now</button>
+    </form>
+
+    {% else %}
+    <p>Your cart is empty.</p>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

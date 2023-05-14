@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5 py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-primary">
+        <div class="card-body">
+          <h1 class="card-title text-center mb-4">Profile</h1>
+          <form id="update-form" method="put">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" class="form-control" value="{{ user.name }}">
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}">
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">Confirm Password</label>
+              <input type="password" id="confirm-password" name="confirm-password" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="address">Address</label>
+              <textarea id="address" name="address" class="form-control">{{ user.address }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="phone-number">Phone Number</label>
+              <input type="text" id="phone-number" name="phone_number" class="form-control" value="{{ user.phone_number }}">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block mt-4">Save</button>
+          </form>
+          <div id="error-message" class="mt-4 text-danger"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mt-4 mt-md-0">
+      <div class="card border-secondary">
+        <div class="card-body">
+          <h1 class="card-title text-center mb-4">Profile Info</h1>
+          <table class="table table-sm table-borderless">
+            <tbody>
+              <tr>
+                <th scope="row">Name</th>
+                <td>{{ user.name }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Email</th>
+                <td>{{ user.email }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Address</th>
+                <td>{{ user.address }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Phone Number</th>
+                <td>{{ user.phone_number }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery -->
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+  $('#update-form').submit(function(event) {
+    event.preventDefault(); // Prevent form submission
+
+    // Validate that the passwords match
+    var password = $('#password').val();
+    var confirmPassword = $('#confirm-password').val();
+    if (password !== confirmPassword) {
+      $('#error-message').text('Passwords do not match');
+      return;
+    }
+
+    // Get the form data as JSON
+    var formData = {
+      name: $('#name').val(),
+      email: $('#email').val(),
+      password: password,
+      address: $('#address').val(),
+      phone_number: $('#phone-number').val()
+    };
+
+    // Send the JSON data to the server using AJAX
+    $.ajax({
+      type: 'PUT',
+      url: '/updateprofile/',
+      contentType: 'application/json',
+      data: JSON.stringify(formData),
+      success: function(response) {
+        console.log(response); // Log the response to the console
+        window.location.reload(); // Refresh the page
+      },
+      error: function(error) {
+        console.log(error.responseText); // Log the error to the console
+        $('#error-message').text(JSON.parse(error.responseText).error); // Show the error message
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

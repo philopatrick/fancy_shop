@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <img src="{{ url_for('static', filename='upload/') + product.image}}" class="img-fluid" alt="{{ product.name }}">
+    </div>
+    <div class="col-md-6">
+      <h1>{{ product.name }}</h1>
+      <p class="text-muted">{{ product.description }}</p>
+      <p><strong>Price:</strong> {{ product.price }} USD</p>
+      <hr>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="btn-group w-100" role="group">
+            <button type="button" id="like-btn" class="btn btn-danger">{{ feedback.likes }} <i class="fas fa-thumbs-up"></i></button>
+            <button type="button" id="dislike-btn" class="btn btn-secondary">{{ feedback.dislikes }} <i class="fas fa-thumbs-down"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="btn-group w-100" role="group">
+            <a href="{{url_for('views.checkoutsingle', product_id=product.id)}}"  class="me-2"><button type="button" id="buy-btn" class="btn btn-success">Buy Now <i class="fas fa-shopping-cart"></i></button></a>
+            <button type="button" id="cart-btn" class="btn btn-primary">Add to Cart <i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <h3>Comments</h3>
+      <ul id="comment-list" class="list-unstyled mt-4">
+        {% for comment in feedback.comments %}
+        <li>
+          <p class="fs-5">{{ comment.text }}</p>
+          <small class="text-muted">By {{ comment.username }} on {{ comment.created_at }}</small>
+        </li>
+        {% endfor %}
+      </ul>
+      <form id="comment-form" class="mt-4">
+        <div class="form-group">
+          <label for="comment-input">Add a comment:</label>
+          <textarea class="form-control" id="comment-input" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="far fa-comment"></i> Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+ <!-- jQuery -->
+ <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+  $('#like-btn').click(function() {
+    // Send an HTTP POST request to the API route to like the product
+    $.post('/users/like/{{product.id}}', function(data) {
+      if (data.success) {
+        // Update the button text and count on success
+        $('#like-btn').html(data.count +' <i class="fas fa-thumbs-up"></i>');
+      }
+    });
+  });
+
+  $('#cart-btn').click(function() {
+    // Get the form data as JSON
+    var formData = {
+      product_id: '{{product.id}}',
+      quantity: '{{1}}',
+    };
+
+    // Send the JSON data to the server using AJAX
+    $.ajax({
+      type: 'POST',
+      url: '/users/cart/items/',
+      contentType: 'application/json',
+      data: JSON.stringify(formData),
+      success: function(response) {
+        console.log(response); // Log the response to the console
+        
+      },
+      error: function(error) {
+        console.log(error.responseText); // Log the error to the console
+        //window.location.href = '/login'; // Redirect to the dashboard page
+        //$('#error-message').text(JSON.parse(error.responseText).error); // Show the error message
+      }
+    });
+  })
+
+  $('#dislike-btn').click(function() {
+    // Send an HTTP POST request to the API route to dislike the product
+    $.post('/users/dislike/{{product.id}}', function(data) {
+      if (data.success) {
+        // Update the button text and count on success
+        $('#dislike-btn').html(data.count +' <i class="fas fa-thumbs-down"></i>');
+      }
+    });
+  });
+
+  $('#comment-form').submit(function(event) {
+    event.preventDefault();
+
+    // Get the comment input value
+    var comment = $('#comment-input').val();
+
+    var formData = {
+      text: comment,
+    };
+    $.ajax({
+      type: 'POST',
+      url: '/users/products/{{product.id}}/comments',
+      contentType: 'application/json',
+      data: JSON.stringify(formData),
+      success: function(response) {
+        console.log(response); // Log the response to the console
+        window.location.href = '/product/{{product.id}}';
+        // $('#comment-input').val('');
+        // $('#comment-list').append('<li><p>' + comment + '</p><small>By You on ' + data.created_at + '</small></li>');
+      },
+      error: function(error) {
+        console.log(error.responseText); // Log the error to the console
+        //window.location.href = '/login'; // Redirect to the dashboard page
+        //$('#error-message').text(JSON.parse(error.responseText).error); // Show the error message
+      }
+    });
+    
+  });
+});
+</script>
+{% endblock %}

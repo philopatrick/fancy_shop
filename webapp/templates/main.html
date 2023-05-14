@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-3 mb-4">
+      <h2 class="text-center">Categories</h2>
+      <hr>
+      <div class="btn-group-vertical w-100" role="group">
+        <button type="button" class="btn btn-secondary active" data-category-id="0">All</button>
+        {% for category in categories %}
+        <button type="button" class="btn btn-secondary" data-category-id="{{ category.id }}">{{ category.name }}</button>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-9">
+      <h1 class="text-center mb-4">Product Catalog</h1>
+      <hr>
+      <div class="row" id="product-grid">
+        {% for product in products %}
+        <div class="col-md-4 mb-4" data-category-id="{{product.category_id}}">
+          <div class="card h-100">
+            <a href="{{ url_for('views.product_detail', product_id=product.id) }}">
+            <img src="{{ url_for('static', filename='upload/') + product.image}}" class="card-img-top" alt="{{ product.name }}"></a>
+            <div class="card-body">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="card-text">{{ product.description }}</p>
+              <p class="card-text text-muted"><small>{{ product.price }} USD</small></p>
+              <a href="{{url_for('views.checkoutsingle', product_id=product.id)}}" class="btn btn-primary">Buy Now</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery -->
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+  $('.btn-group-vertical .btn').click(function() {
+    // Get the category ID from the button
+    var category_id = $(this).data('category-id');
+    
+    // Show all products if the category ID is 0
+    if (category_id === 0) {
+      $('#product-grid .col-md-4').show();
+    } else {
+      // Hide all products that don't belong to the selected category
+      $('#product-grid .col-md-4').hide();
+      $('#product-grid .col-md-4[data-category-id="' + category_id + '"]').show();
+    }
+
+    // Toggle active class on buttons
+    $('.btn-group-vertical .btn').removeClass('active');
+    $(this).addClass('active');
+  });
+});
+</script>
+{% endblock %}

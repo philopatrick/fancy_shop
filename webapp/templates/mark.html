@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1>Mark Order as Shipped</h1>
+  <hr>
+
+  <p>You are marking the following order as shipped:</p>
+  <ul>
+    <li>Order ID: {{ order.id }}</li>
+    <li>Product Name: {{ order.product_name }}</li>
+    <li>Price: {{ order.price }} USD</li>
+    <li>Quantity: {{ order.quantity }}</li>
+    <li>Total Price: {{ order.total_price }} USD</li>
+  </ul>
+
+  <form method="post">
+    <div class="form-group">
+      <label for="message">Message:</label>
+      <textarea name="message" id="message" class="form-control" rows="5" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Mark as Shipped</button>
+  </form>
+</div>
+{% endblock %}

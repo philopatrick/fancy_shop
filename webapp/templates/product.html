@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6">
+      <h1 class="text-center mb-4">Add Product</h1>
+      <hr>
+
+      <form method="post" action="{{ url_for('add_product') }}" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="name">Product Name:</label>
+          <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Product Description:</label>
+          <textarea name="description" id="description" class="form-control" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="price">Product Price:</label>
+          <input type="number" name="price" id="price" class="form-control" required>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-8 form-group">
+            <label for="category_id">Product Category:</label>
+            <select name="category_id" id="category_id" class="form-control" required>
+              {% for category in categories %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-4 form-group">
+            <label for="image">Product Image:</label>
+            <div class="custom-file">
+              <input type="file" name="image" id="image" class="custom-file-input" accept="image/*" required>
+              <label class="custom-file-label" for="image">Choose file</label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-3">Add Product</button>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      <h2 class="text-center mb-4">Categories</h2>
+      <hr>
+
+      <p>Add new category:</p>
+
+      <form method="post" action="{{ url_for('add_category') }}">
+        <div class="input-group mb-3">
+          <input type="text" name="name" id="category_name" class="form-control" placeholder="Enter category name..." required>
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">Add Category</button>
+          </div>
+        </div>
+      </form>
+
+      <hr>
+
+      <h2 class="text-center my-4">Edit Products</h2>
+
+      {% for product in products %}
+      <div class="card mb-3">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <img src="{{ url_for('static', filename='upload/' + product.image) }}" class="card-img" alt="{{ product.name }}">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="card-text">{{ product.description }}</p>
+              <p class="card-text"><small class="text-muted">{{ product.price }} USD</small></p>
+              <a href="{{ url_for('views.edit_product', product_id=product.id) }}" class="btn btn-primary float-right">Edit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

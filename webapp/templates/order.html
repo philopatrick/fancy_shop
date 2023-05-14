@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1>Orders</h1>
+  <hr>
+
+  {% if user.products %}
+  <h2>Orders for Your Products</h2>
+  {% else %}
+  <h2>Your Orders</h2>
+  {% endif %}
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Order ID</th>
+        <th scope="col">Product Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Total Price</th>
+        <th scope="col">Shipped at</th>
+        <th scope="col">Received at</th>
+        <th scope="col">Vendor Message</th>
+        {% if user.products %}
+        <th scope="col">Shipped?</th>
+        {% else %}
+        <th scope="col">Received?</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.product.name }}</td>
+        <td>{{ order.product.price }} USD</td>
+        <td>{{ order.quantity }}</td>
+        <td>{{ order.price }} USD</td>
+        <td>{{ order.shipped_at}}</td>
+        <td>{{ order.received_at}}</td>
+        <td>{{ order.message }}</td>
+        {% if user.products %}
+        <td>
+          {% if order.shipped %}
+          Yes
+          {% else %}
+          No
+          {% endif %}
+        </td>
+        <td>
+          {% if not order.shipped %}
+          <a href="{{ url_for('mark_order_as_shipped', order_id=order.id) }}" class="btn btn-primary">Mark as Shipped</a>
+          {% endif %}
+        </td>
+        {% else %}
+        <td>
+          {% if not order.received_at %}
+          <button type="button" class="btn btn-primary" onclick="markOrderAsReceived({{ order.id }})">
+            Mark as Received
+          </button>
+          {% else %}
+          Yes
+          {% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<!-- jQuery -->
+
+<!-- Bootstrap JS -->
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+<script>
+
+  function markOrderAsReceived(orderId) {
+    if (confirm("Are you sure you want to mark this order as received?")) {
+      fetch(`/users/orders/${orderId}/received`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          // Any additional data can be sent with the request
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+            console.log(data)
+          //location.reload();
+        }
+      })
+      .catch(error => console.error(error));
+    }
+  }
+
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Shopping Cart</h1>
+  <hr>
+
+  {% if cart %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Product Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Quantity</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart.items %}
+      <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.product.price }} USD</td>
+        <td>
+          <div class="input-group">
+            <input type="number" class="form-control" value="{{ item.quantity }}" min="1" max="10">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary update-quantity-btn" data-product-id="{{ item.product.id }}">Update</button>
+            </div>
+          </div>
+        </td>
+        <td><button class="btn btn-danger remove-item-btn" data-product-id="{{ item.product.id }}">Remove</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h3 class="text-right">Total Price: {{cart.get_total_price() }} USD</h3>
+
+  <div class="d-flex justify-content-end">
+    <a href="{{url_for('views.checkoutcart', user_id=user.id)}}">
+      <button type="button" class="btn btn-primary">Checkout</button>
+    </a>
+  </div>
+
+  {% else %}
+  <div class="alert alert-info" role="alert">
+    Your cart is empty.
+  </div>
+  {% endif %}
+</div>
+
+<!-- jQuery -->
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+  $('.remove-item-btn').click(function() {
+    // Get the product ID from the data attribute
+    var productId = $(this).data('product-id');
+
+    // Send an HTTP DELETE request to the API route to remove the item from the cart
+    $.ajax({
+      url: '/users/{{ user.id }}/cart/items/' + productId,
+      type: 'DELETE',
+      success: function(data) {
+        // Reload the page on success
+        location.reload();
+      }
+    });
+  });
+
+  $('.update-quantity-btn').click(function() {
+    // Get the product ID and quantity from the input fields
+    var productId = $(this).data('product-id');
+    var quantity = $(this).parent().prev().val();
+
+    // Send an HTTP PUT request to the API route to update the item quantity in the cart
+    $.ajax({
+      url: '/users/{{ user.id }}/cart/items/' + productId,
+      type: 'PUT',
+      contentType: 'application/json',
+      data: JSON.stringify({quantity: quantity}),
+      success: function(data) {
+        // Reload the page on success
+        location.reload();
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
